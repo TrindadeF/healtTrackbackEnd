@@ -1,8 +1,16 @@
 import admin from "firebase-admin";
-import serviceAccount from "./caminho-para-sua-chave.json";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config();
+
+const serviceAccountPath = path.resolve(
+  __dirname,
+  "firebase-service-account.json"
+);
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+  credential: admin.credential.cert(require(serviceAccountPath)),
 });
 
 export default admin;

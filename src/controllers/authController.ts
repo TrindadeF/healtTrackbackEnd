@@ -6,7 +6,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await admin.auth().createUser({ email, password });
     res.status(201).json({ uid: user.uid });
-  } catch (error) {
+  } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
 };
