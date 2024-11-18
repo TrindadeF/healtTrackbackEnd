@@ -1,49 +1,23 @@
-import { Model, DataTypes } from "sequelize";
-import db from "../config/dbConfig";
+import mongoose, { Document, Schema } from "mongoose";
 
-class Doctor extends Model {
-  public id!: number;
-  public nome!: string;
-  public cpf!: string;
-  public crm!: string;
-  public hospitalVinculado!: string;
-  public email!: string;
+interface DoctorDocument extends Document {
+  nome: string;
+  cpf: string;
+  crm: string;
+  hospitalVinculado: string;
+  email: string;
 }
 
-Doctor.init(
+const DoctorSchema: Schema = new Schema(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    nome: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    cpf: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    crm: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    hospitalVinculado: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
+    nome: { type: String, required: true },
+    cpf: { type: String, required: true, unique: true },
+    crm: { type: String, required: true },
+    hospitalVinculado: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
   },
-  {
-    sequelize: db,
-    modelName: "Doctor",
-  }
+  { timestamps: true }
 );
 
+const Doctor = mongoose.model<DoctorDocument>("Doctor", DoctorSchema);
 export default Doctor;

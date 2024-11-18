@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import admin from "../config/firebaseAdmin";
 
+declare module "express" {
+  interface Request {
+    user?: admin.auth.DecodedIdToken;
+  }
+}
+
 export const authenticateUser = async (
   req: Request,
   res: Response,
