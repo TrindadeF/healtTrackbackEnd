@@ -1,9 +1,23 @@
-import Joi from "joi";
+import mongoose from "mongoose";
 
-export const doctorSchema = Joi.object({
-  nome: Joi.string().required(),
-  cpf: Joi.string().length(11).required(),
-  crm: Joi.string().required(),
-  hospitalVinculado: Joi.string().required(),
-  email: Joi.string().email().required(),
-});
+const DoctorSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "O ID do usuário é obrigatório"],
+    },
+    crm: {
+      type: String,
+      required: [true, "O CRM é obrigatório"],
+      unique: true,
+    },
+    specialty: {
+      type: String,
+      required: [true, "A especialidade é obrigatória"],
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("Doctor", DoctorSchema);

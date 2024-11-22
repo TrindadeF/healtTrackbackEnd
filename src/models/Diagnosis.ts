@@ -6,6 +6,8 @@ interface DiagnosisDocument extends Document {
   description: string;
   medications: string[];
   exams: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const DiagnosisSchema: Schema = new Schema(

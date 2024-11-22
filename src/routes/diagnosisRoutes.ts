@@ -1,25 +1,16 @@
 import express from "express";
-import * as diagnosisController from "../controllers/diagnosisController";
-import { validateData } from "../middleware/validateData";
-import { authenticateUser } from "../middleware/authenticateUser";
-import { authorizeRole } from "../middleware/authorizeRole";
-import { diagnosisSchema } from "../schemas/diagnosisSchema";
+import {
+  createDiagnosis,
+  getDiagnosis,
+  updateDiagnosis,
+  deleteDiagnosis,
+} from "../controllers/diagnosisController";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  authenticateUser,
-  authorizeRole("doctor"),
-  validateData(diagnosisSchema),
-  diagnosisController.createDiagnosis
-);
-
-router.get(
-  "/:patientId",
-  authenticateUser,
-  authorizeRole("patient"),
-  diagnosisController.getDiagnosis
-);
+router.post("/diagnosis", createDiagnosis);
+router.get("/diagnosis/:patientId", getDiagnosis);
+router.put("/diagnosis/:id", updateDiagnosis);
+router.delete("/diagnosis/:id", deleteDiagnosis);
 
 export default router;

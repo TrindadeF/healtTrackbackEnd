@@ -1,9 +1,13 @@
 import dotenv from "dotenv";
-dotenv.config();
-
 import mongoose from "mongoose";
 
+dotenv.config();
+
 const dbUri = process.env.DB_URI;
+
+if (!dbUri) {
+  throw new Error("A variável de ambiente DB_URI não está definida!");
+}
 
 const connectDB = async () => {
   try {
