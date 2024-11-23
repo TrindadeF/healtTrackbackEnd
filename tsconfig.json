@@ -5,10 +5,11 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
+    "strictNullChecks": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "tsconfig.json", ".env.d.ts", ".env"]
+  "include": ["src", "tsconfig.json", ".env.d.ts", ".env", "types.d.ts"]
 }

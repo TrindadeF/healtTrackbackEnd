@@ -6,7 +6,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   const { email, password, role, name, hospital } = req.body;
 
   try {
+    console.log("Recebendo dados para registro:", req.body);
     const firebaseUser = await auth.createUser({ email, password });
+    console.log("Usuário criado no Firebase:", firebaseUser);
 
     const newUser = new User({
       uid: firebaseUser.uid,

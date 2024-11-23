@@ -1,14 +1,9 @@
 import express from "express";
 import authRoutes from "./authRoutes";
-import doctorRoutes from "./doctorRoutes";
-import patientRoutes from "./patientRoutes";
-import diagnosisRoutes from "./diagnosisRoutes";
-
+import usersRoutes from "./usersRoutes";
 const router = express.Router();
 
 router.use("/auth", authRoutes);
-router.use("/doctors", doctorRoutes);
-router.use("/patients", patientRoutes);
-router.use("/diagnoses", diagnosisRoutes);
+router.use("/user", usersRoutes);
 
 export default router;

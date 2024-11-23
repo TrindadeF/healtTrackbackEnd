@@ -1,13 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import admin from "../config/firebaseAdmin";
+import { auth } from "../config/firebaseAdmin";
 
-declare module "express" {
-  interface Request {
-    user?: admin.auth.DecodedIdToken;
-  }
+interface AuthenticatedRequest extends Request {
+  user?: {
+    uid: string;
+    email: string;
+    role: string;
+  };
 }
 
-export const authenticateUser = async (
+const authenticateUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -15,15 +17,24 @@ export const authenticateUser = async (
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    res.status(401).json({ message: "Token não fornecido" });
+    res.status(401).json({ message: "Token de autenticação não fornecido." });
     return;
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = decodedToken;
+    const decodedToken = await auth.verifyIdToken(token);
+
+    (req as AuthenticatedRequest).user = {
+      uid: decodedToken.uid,
+      email: decodedToken.email || "",
+      role: decodedToken.role || "user",
+    };
+
     next();
   } catch (error) {
-    res.status(401).json({ message: "Token inválido ou expirado" });
+    console.error("Erro ao autenticar o usuário:", error);
+    res.status(401).json({ message: "Token inválido." });
   }
 };
+
+export default authenticateUser;
