@@ -7,32 +7,50 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
   try {
     console.log("Recebendo dados para registro:", req.body);
+
     const firebaseUser = await auth.createUser({ email, password });
     console.log("Usuário criado no Firebase:", firebaseUser);
 
-    const newUser = new User({
-      uid: firebaseUser.uid,
-      email,
-      name,
-      role,
-      hospital: role === "medico" ? hospital : undefined,
-    });
+    try {
+      const newUser = new User({
+        uid: firebaseUser.uid,
+        email,
+        name,
+        role,
+        hospital: role === "medico" ? hospital : undefined,
+      });
 
-    const savedUser = await newUser.save();
+      const savedUser = await newUser.save();
+      console.log("Usuário salvo no MongoDB:", savedUser);
 
-    res.status(201).json({
-      message: "Usuário registrado com sucesso.",
-      user: {
-        uid: savedUser.uid,
-        email: savedUser.email,
-        name: savedUser.name,
-        role: savedUser.role,
-        hospital: savedUser.hospital,
-      },
+      res.status(201).json({
+        message: "Usuário registrado com sucesso.",
+        user: {
+          uid: savedUser.uid,
+          email: savedUser.email,
+          name: savedUser.name,
+          role: savedUser.role,
+          hospital: savedUser.hospital,
+        },
+      });
+    } catch (mongoError) {
+      console.error(
+        "Erro ao salvar usuário no MongoDB, revertendo Firebase:",
+        mongoError
+      );
+
+      await auth.deleteUser(firebaseUser.uid);
+
+      res.status(500).json({
+        error:
+          "Erro ao salvar usuário no banco de dados. Registro no Firebase foi desfeito.",
+      });
+    }
+  } catch (firebaseError) {
+    console.error("Erro ao criar usuário no Firebase:", firebaseError);
+    res.status(400).json({
+      error: "Erro ao registrar usuário no Firebase.",
     });
-  } catch (error: any) {
-    console.error("Erro ao registrar usuário:", error);
-    res.status(400).json({ error: error.message });
   }
 };
 
@@ -67,33 +85,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: any) {
     console.error("Erro ao autenticar usuário:", error);
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const createUser = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const { uid, email, name, role, hospital } = req.body;
-
-  try {
-    const newUser = new User({
-      uid,
-      email,
-      name,
-      role,
-      hospital: role === "medico" ? hospital : undefined,
-    });
-
-    const savedUser = await newUser.save();
-
-    res.status(201).json({
-      message: "Usuário criado diretamente no banco de dados com sucesso.",
-      user: savedUser,
-    });
-  } catch (error: any) {
-    console.error("Erro ao criar usuário no MongoDB:", error);
     res.status(400).json({ error: error.message });
   }
 };
