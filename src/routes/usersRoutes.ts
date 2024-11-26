@@ -5,6 +5,8 @@ import {
   createDiagnosis,
   getDiagnosis,
 } from "../controllers/diagnosisController";
+import { getUser } from "../controllers/users/getUser";
+import authenticateUser from "../middleware/authenticateUser";
 
 const router = express.Router();
 router.post(
@@ -28,5 +30,8 @@ router.get(
     res.json({ message: "Aqui estão os seus diagnósticos." });
   }
 );
+
+router.get("/:id", authenticateUser, getUser);
+router.get("/", authenticateUser, getUser);
 
 export default router;

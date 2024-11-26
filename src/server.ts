@@ -3,16 +3,14 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/dbConfig";
 import routes from "./routes";
+import { corsOptions } from "./utils/corsConfig";
 
 dotenv.config();
-
 const app = express();
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
-
 connectDB();
-
 app.use(routes);
 
 app.use((req, res) => {
