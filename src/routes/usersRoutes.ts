@@ -31,7 +31,6 @@ router.get(
   }
 );
 
-router.get("/:id", authenticateUser, getUser);
-router.get("/", authenticateUser, getUser);
+router.get("/logged", authenticateUser, getUser);
 
 export default router;

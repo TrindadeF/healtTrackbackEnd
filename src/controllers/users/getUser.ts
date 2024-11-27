@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import User, { IUser } from "../../models/User";
 
 export const getUser = async (req: Request, res: Response) => {
-  const { id } = req.params; // Para buscar pelo ID do MongoDB
-  const { uid } = req.query; // Para buscar pelo UID do Firebase
+  const { id } = req.params;
+  const { uid } = req.query;
 
   try {
     let user: IUser | null;
@@ -22,7 +22,6 @@ export const getUser = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
-    // Retorne os dados filtrados por tipo de usuário
     res.status(200).json({
       uid: user.uid,
       email: user.email,

@@ -9,6 +9,24 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   console.log("Recebendo dados para registro:", req.body);
 
   try {
+    const existingUserInDB = await User.findOne({ email });
+    if (existingUserInDB) {
+      res
+        .status(400)
+        .json({ error: "Este e-mail já está em uso no nosso sistema." });
+      return;
+    }
+
+    const existingUserInFirebase = await auth
+      .getUserByEmail(email)
+      .catch(() => null);
+    if (existingUserInFirebase) {
+      res
+        .status(400)
+        .json({ error: "Este e-mail já está registrado no Firebase." });
+      return;
+    }
+
     const firebaseUser = await auth.createUser({ email, password });
     console.log("Usuário criado no Firebase:", firebaseUser);
 
@@ -35,14 +53,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: any) {
     console.error("Erro ao registrar usuário:", error);
+
     if (error instanceof mongoose.Error || error.message.includes("MongoDB")) {
       const { email } = req.body;
       const firebaseUser = await auth.getUserByEmail(email).catch(() => null);
 
       if (firebaseUser) {
-        await auth
-          .deleteUser(firebaseUser.uid)
-          .catch(() => console.error("Erro ao reverter usuário no Firebase."));
+        await auth.deleteUser(firebaseUser.uid).catch(() => {
+          console.error("Erro ao reverter usuário no Firebase.");
+        });
       }
 
       res.status(500).json({
@@ -56,31 +75,21 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const { email, idToken } = req.body;
-
-  if (!email || typeof email !== "string") {
-    res.status(400).json({ message: "Email inválido ou ausente." });
-    return;
-  }
-
-  if (!idToken) {
-    res.status(400).json({ message: "Token ausente." });
-    return;
-  }
-
   try {
-    const decodedToken = await auth.verifyIdToken(idToken);
-    console.log("Token decodificado:", decodedToken);
+    const { idToken } = req.body;
 
-    const firebaseUser = await auth.getUserByEmail(email);
-    if (!firebaseUser || firebaseUser.uid !== decodedToken.uid) {
-      res.status(401).json({
-        message: "Token inválido ou não corresponde ao usuário.",
-      });
+    if (!idToken) {
+      res.status(400).json({ message: "Token ausente." });
       return;
     }
 
-    const user = await User.findOne({ uid: firebaseUser.uid });
+    const decodedToken = await auth.verifyIdToken(idToken);
+
+    const firebaseUid = decodedToken.uid;
+    console.log("UID do Firebase:", firebaseUid);
+
+    const user = await User.findOne({ uid: firebaseUid });
+
     if (!user) {
       res.status(404).json({ message: "Usuário não registrado no sistema." });
       return;
@@ -98,6 +107,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: any) {
     console.error("Erro ao autenticar usuário:", error);
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: "Erro ao processar a autenticação." });
   }
 };
