@@ -40,9 +40,11 @@ export const getUsers = async (req: Request, res: Response) => {
 
   try {
     const filters: { [key: string]: any } = {};
+
     if (role) filters.role = role;
     if (email) filters.email = email;
 
+    filters.role = { $ne: "medico" };
     const users = await User.find(filters);
 
     res.status(200).json(users);
