@@ -7,6 +7,8 @@ export interface IUser extends Document {
   role: "medico" | "paciente";
   hospital?: string;
   createdAt?: Date;
+  cpf: string;
+  crm: string;
 }
 
 const UserSchema = new mongoose.Schema(
@@ -17,6 +19,8 @@ const UserSchema = new mongoose.Schema(
     role: { type: String, enum: ["medico", "paciente"], required: true },
     hospital: { type: String },
     createdAt: { type: Date, default: Date.now },
+    cpf: { type: String, unique: true },
+    crm: { type: String, unique: true },
   },
   { timestamps: true }
 );

@@ -4,7 +4,7 @@ import User from "../models/User";
 import mongoose from "mongoose";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { email, password, role, name, hospital } = req.body;
+  const { email, password, role, name, hospital, cpf, crm } = req.body;
 
   console.log("Recebendo dados para registro:", req.body);
 
@@ -36,6 +36,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       name,
       role,
       hospital: role === "medico" ? hospital : undefined,
+      cpf: role === "paciente" ? cpf : undefined,
+      crm: role === "medico" ? crm : undefined,
     });
 
     const savedUser = await newUser.save();
@@ -49,6 +51,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         name: savedUser.name,
         role: savedUser.role,
         hospital: savedUser.hospital,
+        cpf: savedUser.cpf,
+        crm: savedUser.crm,
       },
     });
   } catch (error: any) {
@@ -104,6 +108,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         name: user.name,
         role: user.role,
         hospital: user.hospital,
+        cpf: user.cpf,
+        crm: user.crm,
       },
     });
   } catch (error: any) {
