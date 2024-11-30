@@ -12,17 +12,38 @@ interface DiagnosisDocument extends Document {
 
 const DiagnosisSchema: Schema = new Schema(
   {
-    patientId: { type: Schema.Types.ObjectId, ref: "Patient", required: true },
-    doctorId: { type: Schema.Types.ObjectId, ref: "Doctor", required: true },
-    description: { type: String, required: true },
-    medications: [{ type: String }],
-    exams: [{ type: String }],
+    patientId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "O ID do paciente é obrigatório."],
+    },
+    doctorId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "O ID do médico é obrigatório."],
+    },
+    description: {
+      type: String,
+      required: [true, "A descrição é obrigatória."],
+      trim: true,
+    },
+    medications: {
+      type: [{ type: String }],
+      default: [],
+    },
+    exams: {
+      type: [{ type: String }],
+      default: [],
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const Diagnosis = mongoose.model<DiagnosisDocument>(
   "Diagnosis",
   DiagnosisSchema
 );
+
 export default Diagnosis;

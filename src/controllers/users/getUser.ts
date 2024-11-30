@@ -23,6 +23,7 @@ export const getUser = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
+      id: user._id,
       uid: user.uid,
       email: user.email,
       name: user.name,
@@ -35,21 +36,44 @@ export const getUser = async (req: Request, res: Response) => {
   }
 };
 
-export const getUsers = async (req: Request, res: Response) => {
-  const { role, email } = req.query;
-
+export const getPatients = async (req: Request, res: Response) => {
   try {
-    const filters: { [key: string]: any } = {};
+    const patients = await User.find({ role: "paciente" }).select(
+      "_id uid name email hospital"
+    );
 
-    if (role) filters.role = role;
-    if (email) filters.email = email;
+    const formattedPatients = patients.map((patient) => ({
+      id: patient._id,
+      uid: patient.uid,
+      name: patient.name,
+      email: patient.email,
+      hospital: patient.hospital,
+    }));
 
-    filters.role = { $ne: "medico" };
-    const users = await User.find(filters);
-
-    res.status(200).json(users);
+    res.status(200).json(formattedPatients);
   } catch (error) {
-    console.error("Erro ao buscar usuários:", error);
-    res.status(500).json({ error: "Erro ao buscar usuários." });
+    console.error("Erro ao buscar pacientes:", error);
+    res.status(500).json({ error: "Erro ao buscar pacientes." });
+  }
+};
+
+export const getDoctors = async (req: Request, res: Response) => {
+  try {
+    const doctors = await User.find({ role: "medico" }).select(
+      "_id uid name email hospital"
+    );
+
+    const formattedDoctors = doctors.map((doctor) => ({
+      id: doctor._id,
+      uid: doctor.uid,
+      name: doctor.name,
+      email: doctor.email,
+      hospital: doctor.hospital,
+    }));
+
+    res.status(200).json(formattedDoctors);
+  } catch (error) {
+    console.error("Erro ao buscar médicos:", error);
+    res.status(500).json({ error: "Erro ao buscar médicos." });
   }
 };

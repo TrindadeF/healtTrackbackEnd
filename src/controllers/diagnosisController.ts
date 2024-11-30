@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Diagnosis from "../models/Diagnosis";
+import mongoose from "mongoose";
 
 export const createDiagnosis = async (
   req: Request,
@@ -8,9 +9,17 @@ export const createDiagnosis = async (
   const { patientId, doctorId, description, medications, exams } = req.body;
 
   try {
+    if (!mongoose.Types.ObjectId.isValid(patientId)) {
+      throw new Error("patientId inválido");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(doctorId)) {
+      throw new Error("doctorId inválido");
+    }
+
     const newDiagnosis = new Diagnosis({
-      patientId,
-      doctorId,
+      patientId: new mongoose.Types.ObjectId(patientId),
+      doctorId: new mongoose.Types.ObjectId(doctorId),
       description,
       medications,
       exams,
@@ -27,7 +36,6 @@ export const createDiagnosis = async (
     res.status(400).json({ error: error.message });
   }
 };
-
 export const getDiagnosis = async (
   req: Request,
   res: Response
@@ -35,7 +43,13 @@ export const getDiagnosis = async (
   const { patientId } = req.params;
 
   try {
-    const diagnoses = await Diagnosis.find({ patientId });
+    if (!patientId) {
+      res.status(400).json({ error: "O ID do paciente é obrigatório." });
+    }
+
+    const diagnoses = await Diagnosis.find({ patientId })
+      .populate("doctorId", "name email hospital")
+      .sort({ createdAt: -1 });
 
     if (!diagnoses || diagnoses.length === 0) {
       res.status(404).json({ error: "Nenhum diagnóstico encontrado." });
@@ -44,7 +58,7 @@ export const getDiagnosis = async (
     res.status(200).json(diagnoses);
   } catch (error: any) {
     console.error("Erro ao buscar diagnósticos:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Erro ao buscar diagnósticos." });
   }
 };
 

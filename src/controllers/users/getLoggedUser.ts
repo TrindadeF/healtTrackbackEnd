@@ -23,6 +23,7 @@ export const getLoggedUser = async (
     }
 
     res.status(200).json({
+      id: user._id,
       uid: user.uid,
       email: user.email,
       name: user.name,
