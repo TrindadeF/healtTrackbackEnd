@@ -36,6 +36,7 @@ export const createDiagnosis = async (
     res.status(400).json({ error: error.message });
   }
 };
+
 export const getDiagnosis = async (
   req: Request,
   res: Response
@@ -45,6 +46,12 @@ export const getDiagnosis = async (
   try {
     if (!patientId) {
       res.status(400).json({ error: "O ID do paciente é obrigatório." });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(patientId)) {
+      res.status(400).json({ error: "ID do paciente inválido." });
+      return;
     }
 
     const diagnoses = await Diagnosis.find({ patientId })
@@ -52,7 +59,8 @@ export const getDiagnosis = async (
       .sort({ createdAt: -1 });
 
     if (!diagnoses || diagnoses.length === 0) {
-      res.status(404).json({ error: "Nenhum diagnóstico encontrado." });
+      res.status(200).json([]);
+      return;
     }
 
     res.status(200).json(diagnoses);
