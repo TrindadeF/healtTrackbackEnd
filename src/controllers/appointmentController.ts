@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Appointment from "../models/Appointment";
+import mongoose from "mongoose";
 
 export const createAppointment = async (req: Request, res: Response) => {
   const { patientId, doctorId, date, time } = req.body;
@@ -9,6 +10,14 @@ export const createAppointment = async (req: Request, res: Response) => {
       return res
         .status(400)
         .json({ error: "Todos os campos são obrigatórios." });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(patientId)) {
+      return res.status(400).json({ error: "ID do paciente inválido." });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(doctorId)) {
+      return res.status(400).json({ error: "ID do médico inválido." });
     }
 
     const newAppointment = new Appointment({

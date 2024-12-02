@@ -1,4 +1,3 @@
-import { match } from "assert";
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
@@ -8,8 +7,8 @@ export interface IUser extends Document {
   role: "medico" | "paciente";
   hospital?: string;
   cpf?: string;
+  crm?: string | null;
   createdAt?: Date;
-  crm?: string;
 }
 
 const UserSchema: Schema<IUser> = new mongoose.Schema(
@@ -58,13 +57,26 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
       required: function (this: IUser) {
         return this.role === "medico";
       },
-      unique: true,
-      match: [/^\d{6}$/, "O CPF deve conter exatamente 11 dígitos"],
+      match: [/^\d{11}$/, "O CRM deve conter exatamente 11 dígitos"],
+      validate: {
+        validator: function (value: string | null) {
+          if (this.role === "medico") {
+            return value !== null && value.match(/^\d{11}$/);
+          }
+          return true;
+        },
+        message: "CRM inválido ou ausente",
+      },
     },
   },
   {
     timestamps: true,
   }
+);
+
+UserSchema.index(
+  { crm: 1 },
+  { unique: true, partialFilterExpression: { role: "medico" } }
 );
 
 export default mongoose.model<IUser>("User", UserSchema);

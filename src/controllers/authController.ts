@@ -30,15 +30,19 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const firebaseUser = await auth.createUser({ email, password });
     console.log("Usuário criado no Firebase:", firebaseUser);
 
-    const newUser = new User({
+    const newUserData: any = {
       uid: firebaseUser.uid,
       email,
       name,
       role,
-      hospital: role === "medico" ? hospital : undefined,
-      cpf: role === "paciente" ? cpf : undefined,
-      crm: role === "medico" ? crm : undefined,
-    });
+      hospital,
+      cpf,
+    };
+
+    if (role === "medico") {
+      newUserData.crm = crm;
+    }
+    const newUser = new User(newUserData);
 
     const savedUser = await newUser.save();
     console.log("Usuário salvo no MongoDB:", savedUser);
