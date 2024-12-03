@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Appointment from "../models/Appointment";
+import Appointment, { IAppointment } from "../models/Appointment";
 import mongoose from "mongoose";
 
 export const createAppointment = async (req: Request, res: Response) => {
@@ -86,6 +86,7 @@ export const getAppointmentsByPatient = async (req: Request, res: Response) => {
 
   try {
     const appointments = await Appointment.find({ patientId })
+      .populate("patientId", "name email")
       .populate("doctorId", "name email")
       .sort({ date: 1, time: 1 });
 
